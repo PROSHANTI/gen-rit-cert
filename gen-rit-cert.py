@@ -19,7 +19,7 @@ class CertificateCreator:
 
         self.name = tk.StringVar()
         self.price = tk.StringVar()
-        self.who_buy = tk.StringVar()
+        self.buyer = tk.StringVar()
 
         self.setup_ui()
         self.setup_logging()
@@ -50,11 +50,11 @@ class CertificateCreator:
         ttk.Entry(frame, textvariable=self.price, width=30).pack(padx=100, pady=5)
 
         ttk.Label(frame, text='КОМУ ПРОДАНО').pack(padx=100, pady=5)
-        ttk.Entry(frame, textvariable=self.who_buy, width=30).pack(padx=100, pady=5)
+        ttk.Entry(frame, textvariable=self.buyer, width=30).pack(padx=100, pady=5)
 
         btn_create = tk.Button(
             self.window, text='Создать сертификат',
-            command=self.replace_text_in_presentation)
+            command=self.generate_certificate)
         btn_create.pack(pady=5)
 
         exit_button = tk.Button(self.window, text="Выход", command=self.window.destroy)
@@ -79,7 +79,7 @@ class CertificateCreator:
     def check_output_file(output_file_path):
         return os.path.exists(output_file_path)
 
-    def replace_text_in_presentation(self):
+    def generate_certificate(self):
         input_file_path = 'Сертификат.pptx'
         output_file_path = 'Сертификат на печать.pptx'
 
@@ -88,7 +88,7 @@ class CertificateCreator:
 
         price_value = self.price.get()
         name_value = self.name.get()
-        who_buy_value = self.who_buy.get()
+        buyer_value = self.buyer.get()
 
         try:
             price_value = float(price_value)
@@ -129,7 +129,7 @@ class CertificateCreator:
         message = (
             f'Сертификат №: {replacements["serial"]}; '
             f'Именной: {replacements["name"]}; '
-            f'Кому: {who_buy_value}; '
+            f'Кому: {buyer_value}; '
             f'Цена: {replacements["price"]} ₽'
         )
 
@@ -146,3 +146,4 @@ if __name__ == '__main__':
     window = Tk()
     app = CertificateCreator(window)
     app.main()
+    
