@@ -32,4 +32,4 @@ python3 gen-rit-cert.py
 
 ## Скриншот
 
-![alt text](https://github.com/PROSHANTI/gen-rit-cert/blob/main/Screenshoot_MacOS.png?raw=true)
+![alt text](https://github.com/PROSHANTI/gen-rit-cert/blob/eff91f3b2d3c0e85dd473fdc2b5ebf0177328299/Screenshot_MacOS.png)
