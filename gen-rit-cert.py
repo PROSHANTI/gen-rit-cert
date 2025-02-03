@@ -157,7 +157,7 @@ class CertificateCreator:
         except Exception as e:
             messagebox.showerror(
                 "Ошибка",
-                f"Не удалось сконвертировать файл: {str(e)}"
+                f"Не удалось конвертировать файл: {str(e)}"
             )
 
     def main(self):
