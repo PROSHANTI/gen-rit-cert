@@ -3,12 +3,15 @@ import os
 import logging
 import sys
 import random
+import datetime
+import locale
 
 from tkinter import messagebox
 from tkinter import *
 import tkinter as tk
 from tkinter import ttk
 from pptx import Presentation
+from pptxtopdf import convert
 
 
 class CertificateCreator:
@@ -26,9 +29,11 @@ class CertificateCreator:
 
     @staticmethod
     def setup_logging():
+        """Настраивает логирование"""
         logging.basicConfig(
             level=logging.INFO,
-            filename='program.txt',
+            filename='program.log',
+            encoding='WINDOWS-1251',
             filemode='a',
             format='%(asctime)s - %(levelname)s - %(message)s',
             datefmt='%d.%m.%Y - %H:%M'
@@ -40,6 +45,7 @@ class CertificateCreator:
         logger.addHandler(stream_handler)
 
     def setup_ui(self):
+        """Рисует графику с помощью tkinter"""
         frame = Frame(self.window)
         frame.pack()
 
@@ -62,52 +68,47 @@ class CertificateCreator:
 
     @staticmethod
     def get_random_number():
-        """Получить случайное число."""
+        """Получает случайное число до 6 знаков."""
         return random.randint(100000, 999999)
 
     @staticmethod
-    def check_input_file(input_file_path):
+    def check_input_file(input_pptx):
         """Проверяет существование файлов в папке с программой."""
-        if not os.path.exists(input_file_path):
+        if not os.path.exists(input_pptx):
             messagebox.showinfo(
-                message=f'Файл «{input_file_path}» не найден в папке с программой.'
+                message=f'Файл «{input_pptx}» не найден в папке с программой.'
             )
             return False
         return True
 
-    @staticmethod
-    def check_output_file(output_file_path):
-        return os.path.exists(output_file_path)
-
     def generate_certificate(self):
-        input_file_path = 'Сертификат.pptx'
-        output_file_path = 'Сертификат на печать.pptx'
+        """Генерирует сертификат."""
+        input_pptx = './template/Сертификат_шаблон.pptx'
+        out_pptx = './pptx_out/Сертификат.pptx'
+        out_pdf = f'./pdf/'
+        pdf_file = f'./pdf/Сертификат.pdf'
+        price_value = str(self.price.get())
+        name_value = str(self.name.get())
+        buyer_value = str(self.buyer.get())
+        prs = Presentation(input_pptx)
 
-        if not self.check_input_file(input_file_path):
+        if not self.check_input_file(input_pptx):
             return
 
-        price_value = self.price.get()
-        name_value = self.name.get()
-        buyer_value = self.buyer.get()
-
-        try:
-            price_value = float(price_value)
-        except ValueError:
-            messagebox.showerror("Ошибка", "Цена должна быть числом")
-            logging.error("Цена должна быть числом")
+        if len(price_value) > 6:
+            messagebox.showerror(
+                "Ошибка",
+                "Цена слишком большая (максимум 100000)"
+            )
             return
 
-        if price_value > 100000:
-            messagebox.showerror("Ошибка", "Цена слишком большая (максимум 100000)")
-            logging.error("Цена слишком большая (максимум 100000)")
-            return
-
-        if price_value <= 0:
-            messagebox.showerror("Ошибка", "Цена должна быть больше 0")
+        if len(price_value) <= 0:
+            messagebox.showerror(
+                "Ошибка",
+                "Цена должна быть больше 0"
+            )
             logging.error("Цена должна быть больше 0")
             return
-
-        prs = Presentation(input_file_path)
 
         replacements = {
             'price': str(price_value),
@@ -123,8 +124,9 @@ class CertificateCreator:
                 for run in paragraph.runs:
                     for key, value in replacements.items():
                         run.text = run.text.replace(key, value)
+        prs.save(out_pptx)
 
-        prs.save(output_file_path)
+        self.convert_pptx_to_pdf(out_pptx, out_pdf, pdf_file)
 
         message = (
             f'Сертификат №: {replacements["serial"]}; '
@@ -132,11 +134,24 @@ class CertificateCreator:
             f'Кому: {buyer_value}; '
             f'Цена: {replacements["price"]} ₽'
         )
-
-        if self.check_output_file(output_file_path):
-            messagebox.showinfo(message=message)
-            logging.info(message)
+        messagebox.showinfo(message=message)
+        logging.info(message)
         self.window.destroy()
+
+
+    @staticmethod
+    def convert_pptx_to_pdf(pdf_path, pdf_file):
+        """Конвертирует файл pptx в pdf."""
+        try:
+            if os.path.exists(pdf_file):
+                os.remove(pdf_file)
+            convert(pptx_path, pdf_path)
+
+        except Exception as e:
+            messagebox.showerror(
+                "Ошибка",
+                f"Не удалось сконвертировать файл: {str(e)}"
+            )
 
     def main(self):
         self.window.mainloop()
@@ -146,4 +161,3 @@ if __name__ == '__main__':
     window = Tk()
     app = CertificateCreator(window)
     app.main()
-    
