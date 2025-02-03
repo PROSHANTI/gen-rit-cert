@@ -3,8 +3,6 @@ import os
 import logging
 import sys
 import random
-import datetime
-import locale
 
 from tkinter import messagebox
 from tkinter import *
@@ -84,7 +82,8 @@ class CertificateCreator:
     def generate_certificate(self):
         """Генерирует сертификат."""
         input_pptx = './template/Сертификат_шаблон.pptx'
-        out_pptx = './pptx_out/Сертификат.pptx'
+        out_pptx = './pptx/Сертификат.pptx'
+        out_pptx_path = './pptx/'
         out_pdf = f'./pdf/'
         pdf_file = f'./pdf/Сертификат.pdf'
         price_value = str(self.price.get())
@@ -124,9 +123,18 @@ class CertificateCreator:
                 for run in paragraph.runs:
                     for key, value in replacements.items():
                         run.text = run.text.replace(key, value)
-        prs.save(out_pptx)
 
-        self.convert_pptx_to_pdf(out_pptx, out_pdf, pdf_file)
+        if not os.path.exists(out_pptx_path):
+            os.makedirs(out_pptx_path)
+            prs.save(out_pptx)
+
+        try:
+            self.convert_pptx_to_pdf(out_pptx, out_pdf, pdf_file)
+        except Exception as e:
+            messagebox.showerror(
+                'Ошибка',
+                f'Не удалось конвертировать: {e}'
+            )
 
         message = (
             f'Сертификат №: {replacements["serial"]}; '
@@ -138,14 +146,13 @@ class CertificateCreator:
         logging.info(message)
         self.window.destroy()
 
-
     @staticmethod
-    def convert_pptx_to_pdf(pdf_path, pdf_file):
+    def convert_pptx_to_pdf(out_pptx, out_pdf, pdf_file):
         """Конвертирует файл pptx в pdf."""
         try:
             if os.path.exists(pdf_file):
                 os.remove(pdf_file)
-            convert(pptx_path, pdf_path)
+            convert(out_pptx, out_pdf)
 
         except Exception as e:
             messagebox.showerror(
