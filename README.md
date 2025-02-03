@@ -33,3 +33,4 @@ python3 gen-rit-cert.py
 ## Скриншот
 
 ![MacOS](https://github.com/PROSHANTI/gen-rit-cert/blob/eff91f3b2d3c0e85dd473fdc2b5ebf0177328299/Screenshot_MacOS.png)
+![Windows](https://github.com/PROSHANTI/gen-rit-cert/blob/5cf548d94211529cac5927a10ce5e26e8a575f59/Screenshot_windows.png)
