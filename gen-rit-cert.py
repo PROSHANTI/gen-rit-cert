@@ -3,6 +3,7 @@ import os
 import logging
 import sys
 import random
+import shutil
 
 from tkinter import messagebox
 from tkinter import *
@@ -91,6 +92,20 @@ class CertificateCreator:
         buyer_value = str(self.buyer.get())
         prs = Presentation(input_pptx)
 
+
+        for folder in [out_pptx_path, out_pdf]:
+            if os.path.exists(folder):
+                try:
+                    shutil.rmtree(folder)
+                except Exception as e:
+                    messagebox.showerror(
+                        "Ошибка",
+                        f"Не удалось удалить папку {folder}: {str(e)}"
+                    )
+                    return
+
+        prs = Presentation(input_pptx)
+
         if not self.check_input_file(input_pptx):
             return
 
@@ -124,9 +139,11 @@ class CertificateCreator:
                     for key, value in replacements.items():
                         run.text = run.text.replace(key, value)
 
-        if not os.path.exists(out_pptx_path):
-            os.makedirs(out_pptx_path)
-            prs.save(out_pptx)
+        # Создаем папки заново
+        os.makedirs(out_pptx_path, exist_ok=True)
+        os.makedirs(out_pdf, exist_ok=True)
+        
+        prs.save(out_pptx)
 
         try:
             self.convert_pptx_to_pdf(out_pptx, out_pdf, pdf_file)
